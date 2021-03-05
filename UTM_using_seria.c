@@ -2,11 +2,12 @@
 // all in input and output via the serial monitor 
 
 #include <math.h>
-#include <Wire.h> 
-#include <LiquidCrystal_I2C.h>
-#include <Keypad.h>
+//#include <Wire.h> 
+//#include <LiquidCrystal_I2C.h>
+//#include <Keypad.h>
 
-
+// --added
+#define NO_KEY '\0'
 // Set the LCD address to 0x27 for a 16 chars and 2 line display
 
 /*
@@ -187,7 +188,7 @@ void print_stuff_1st_row(){
 }
 
 void print_stuff_2nd_row(int from_first = 0){
-	Serial.println("2-")
+	Serial.println("2-");
 	Serial.println(printString);
 	// -- commented
 	// if (from_first){
@@ -235,7 +236,8 @@ double print_and_take(){
 		}
 	  }
 	 else if (keypressed == 'C') {
-	  clear_2nd_row();
+	  // --commented
+	  //clear_2nd_row();
 	  inputString = inputString.substring(0, inputString.length() - 1);
 	  printString = inputString;
 	  print_stuff_2nd_row(1);
