@@ -284,7 +284,7 @@ void B_routine(){
 }
 
 bool in_bounds(double x, double lower, double upper){
-  return ((x <= lower) && (x <= upper));
+  return ((x >= lower) && (x <= upper));
 }
 
 double deg_to_rad(double degree){
