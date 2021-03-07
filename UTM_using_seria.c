@@ -178,6 +178,27 @@ void timer_and_check_D_is_pressed(){
 	}
 }
 
+// getting the decimal part of a double variable for UTM
+// actually there are 2 different functions see below this function
+// the number that u multiply with the subtracted thing changes 
+
+// getting the decimal part of a double variable for latlong
+long getDecimal(double val)
+{
+  int intPart = int(val);
+  long decPart = 100000*(val-intPart); //I am multiplying by 100000 assuming that the foat values will have a maximum of 3 decimal places. 
+                                    //Change to match the number of decimal places you need
+  if(decPart>0)return(decPart);           //return the decimal part of float number if it is available 
+  else if(decPart<0)return((-1)*decPart); //if negative, multiply by -1
+  else if(decPart=0)return(0);           //return 0 if decimal part of float number is not available
+}
+
+String convert_double_to_String(double value){
+  String stringVal = "";     
+  stringVal+=String(int(floatVal))+ "."+String(getDecimal(floatVal)); //combining both whole and decimal part in string with a fullstop between them
+  return (stringVal);
+}
+
 void print_stuff_1st_row(){
 	// --comment
 	// lcd.clear();
@@ -278,12 +299,12 @@ UTM_coord take_UTM(){
 void print_latlon(struct latloncoord latlonprint){
 	printString = "Latitude";
 	print_stuff_1st_row();
-	printString = latlonprint.latitude;
+	printString = convert_double_to_String(latlonprint.latitude);
 	print_stuff_2nd_row(1);
 	timer_and_check_D_is_pressed();
 	printString = "Longitude";
 	print_stuff_1st_row();
-	printString = latlonprint.longitude;
+	printString = convert_double_to_String(latlonprint.longitude);
 	print_stuff_2nd_row(1);
 	timer_and_check_D_is_pressed();
 	// -- commented
@@ -303,12 +324,12 @@ void print_UTM(struct UTM_coord UTM_print){
 	timer_and_check_D_is_pressed();
 	printString = "easting";
 	print_stuff_1st_row();
-	printString = UTM_print.easting;
+	printString = convert_double_to_String(UTM_print.easting);
 	print_stuff_2nd_row(1);
 	timer_and_check_D_is_pressed();
 	printString = "northing";
 	print_stuff_1st_row();
-	printString = UTM_print.northing;
+	printString = convert_double_to_String(UTM_print.northing);
 	print_stuff_2nd_row(1);
 	timer_and_check_D_is_pressed();
 	// --commented
