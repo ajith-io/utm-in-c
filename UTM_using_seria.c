@@ -103,8 +103,7 @@ void setup(){
 }
 
 void loop(){
-	//startprint();
-	convert_double_to_String(13.0057);
+	startprint();
 }
 
 // -- added
@@ -240,7 +239,7 @@ String convert_double_to_String(double floatVal){
     final_str[count] = ' ';
     count += 1;
   }
-
+  final_str[count] = '\0';
   String s = final_str;
   return (s);
 }
