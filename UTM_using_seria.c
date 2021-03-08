@@ -103,7 +103,8 @@ void setup(){
 }
 
 void loop(){
-	startprint();
+	//startprint();
+	convert_double_to_String(13.0057);
 }
 
 // -- added
@@ -190,9 +191,9 @@ String convert_double_to_String(double floatVal){
   char rev_digits_after_pt[16];
   char final_str[16];
   long intPart = floatVal;
-  long decPart = (pow(10, noofdigit_after_pt))*(floatVal - intPart);
+  double decPart = (floatVal - intPart);
   long intPart_copy = intPart;
-  long decPart_copy = decPart;
+  double decPart_copy = decPart;
   if(decPart < 0){
     decPart =  (-1)*decPart;//if negative, multiply by -1
   }
@@ -205,9 +206,9 @@ String convert_double_to_String(double floatVal){
   }
   rev_digits_before_pt[i] = '\0';
   
-  for (i = 0; ((i < 16) && (decPart_copy > 0));i++){
-    rev_digits_after_pt[i] = 48 + (decPart_copy % 10);
-    decPart_copy /= 10;
+  for (i = 0; ((i < 16) && (decPart_copy > 0.0));i++){
+    rev_digits_after_pt[i] = 48 + (int(decPart_copy));
+    decPart_copy *= 10;
   }
 
   rev_digits_after_pt[i] = '\0';
