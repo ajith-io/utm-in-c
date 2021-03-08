@@ -192,6 +192,7 @@ String convert_double_to_String(double floatVal){
   char final_str[16];
   long intPart = floatVal;
   double decPart = (floatVal - intPart);
+  //Serial.println(decPart, 7);
   long intPart_copy = intPart;
   double decPart_copy = decPart;
   if(decPart < 0){
@@ -200,19 +201,23 @@ String convert_double_to_String(double floatVal){
   
   int i = 0;
 
-  for (i = 0; ((i < 16) && (intPart_copy > 0));i++){
+  for (i = 0; (i < 16);i++){
     rev_digits_before_pt[i] = 48 + (intPart_copy % 10);
     intPart_copy /= 10;
   }
   rev_digits_before_pt[i] = '\0';
-  
-  for (i = 0; ((i < 16) && (decPart_copy > 0.0));i++){
-    rev_digits_after_pt[i] = 48 + (int(decPart_copy));
+  int d_c = 0;
+  for (i = 0; (i < 16);i++){
     decPart_copy *= 10;
+    d_c = decPart_copy;
+    //printf("%d \n", d_c);
+    rev_digits_after_pt[i] = 48 + (d_c);
+    decPart_copy = decPart_copy - d_c;
+    //printf("%c", rev_digits_after_pt[i]);
   }
+  
 
   rev_digits_after_pt[i] = '\0';
-
   int count = 0;
   if (negative_float){
     final_str[count] = '-';
@@ -227,7 +232,7 @@ String convert_double_to_String(double floatVal){
   final_str[count] = '.';
   count += 1;
 
-  for(i = noofdigit_after_pt - 1; i >= 0;i--){
+  for(i=0;i<noofdigit_after_pt;i++){
     final_str[count] = rev_digits_after_pt[i];
     count += 1;
   }
@@ -235,6 +240,7 @@ String convert_double_to_String(double floatVal){
     final_str[count] = ' ';
     count += 1;
   }
+
   String s = final_str;
   return (s);
 }
