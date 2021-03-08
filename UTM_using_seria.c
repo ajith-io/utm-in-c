@@ -178,26 +178,66 @@ void timer_and_check_D_is_pressed(){
 	}
 }
 
-// getting the decimal part of a double variable for UTM
-// actually there are 2 different functions see below this function
-// the number that u multiply with the subtracted thing changes 
+String convert_double_to_String(double floatVal){
+  int negative_float = 0;
+  if (floatVal < 0){
+    negative_float = 1;
+    floatVal = (-1) * floatVal;
+  }
+  int noofdigits_before_pt = log10(floatVal) + 1;
+  int noofdigit_after_pt = 7 - noofdigits_before_pt;
+  char rev_digits_before_pt[16];
+  char rev_digits_after_pt[16];
+  char final_str[16];
+  long intPart = floatVal;
+  long decPart = (pow(10, noofdigit_after_pt))*(floatVal - intPart);
+  long intPart_copy = intPart;
+  long decPart_copy = decPart;
+  if(decPart < 0){
+    decPart =  (-1)*decPart;//if negative, multiply by -1
+  }
+  
+  int i = 0;
 
-// getting the decimal part of a double variable for latlong
-long getDecimal(double val)
-{
-  int intPart = int(val);
-  long decPart = 100000*(val-intPart); //I am multiplying by 100000 assuming that the foat values will have a maximum of 3 decimal places. 
-                                    //Change to match the number of decimal places you need
-  if(decPart>0)return(decPart);           //return the decimal part of float number if it is available 
-  else if(decPart<0)return((-1)*decPart); //if negative, multiply by -1
-  else if(decPart=0)return(0);           //return 0 if decimal part of float number is not available
+  for (i = 0; ((i < 16) && (intPart_copy > 0));i++){
+    rev_digits_before_pt[i] = 48 + (intPart_copy % 10);
+    intPart_copy /= 10;
+  }
+  rev_digits_before_pt[i] = '\0';
+  
+  for (i = 0; ((i < 16) && (decPart_copy > 0));i++){
+    rev_digits_after_pt[i] = 48 + (decPart_copy % 10);
+    decPart_copy /= 10;
+  }
+
+  rev_digits_after_pt[i] = '\0';
+
+  int count = 0;
+  if (negative_float){
+    final_str[count] = '-';
+    count += 1 ;
+  }
+
+  for(i= noofdigits_before_pt - 1;i >= 0;i--) {
+    final_str[count] = rev_digits_before_pt[i];
+    count += 1;
+  }
+  
+  final_str[count] = '.';
+  count += 1;
+
+  for(i = noofdigit_after_pt - 1; i >= 0;i--){
+    final_str[count] = rev_digits_after_pt[i];
+    count += 1;
+  }
+  while (count < 16){
+    final_str[count] = ' ';
+    count += 1;
+  }
+  String s = final_str;
+  return (s);
 }
 
-String convert_double_to_String(double value){
-  String stringVal = "";     
-  stringVal+=String(int(floatVal))+ "."+String(getDecimal(floatVal)); //combining both whole and decimal part in string with a fullstop between them
-  return (stringVal);
-}
 
 void print_stuff_1st_row(){
 	// --comment
