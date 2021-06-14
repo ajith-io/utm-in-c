@@ -145,7 +145,7 @@ void initprint(){
 
 void startprint(){
 	lcd.setCursor(0, 0);
-	lcd.print("Enter A or B or C or D");
+	lcd.print("Enter A,B,C or D");
 	lcd.setCursor(0, 1);
 	while (1){ 
 		keypressed = myKeypad.getKey();
@@ -316,9 +316,9 @@ void A_routine(){
 
 void B_routine(){
 	struct latloncoord latlonB;
-	struct UTM_coord UTM_B;
-	UTM_B = take_UTM();
-	latlonB = to_latlon(UTM_B);
+	struct IG_coord IG_B;
+	IG_B = take_IG();
+	latlonB = to_latlon_from_IG(IG_B);
 	print_latlon(latlonB);
 }
 
@@ -612,7 +612,7 @@ latloncoord to_latlon(struct UTM_coord UTM_conv){
 
 int in_zone(latitude, longitude, lat1, lat2, long1, long2){
 		int lat_cond = (latitude >= lat1) && (latitude <= lat2);
-		int long_cond = (longitude >= long2) && (longitude <= long1);
+		int long_cond = (longitude >= long1) && (longitude <= long2);
 		if ((lat_cond) && (long_cond)){
 				return (1);
 		}
@@ -764,3 +764,111 @@ void print_IG(struct IG_coord IG_print){
 	timer_and_check_D_is_pressed();
 	lcd.clear();
 }
+
+
+IG_coord take_IG(){
+	struct IG_coord IG_inp;
+	int temp = 0;
+	printString = "Enter zone num";
+	temp = print_and_take();
+	IG_inp.zone_number = temp;
+	printString = "Enter easting"; 
+	IG_inp.easting = print_and_take();
+	printString = "Enter northing"; 
+	IG_inp.northing = print_and_take();
+	return(IG_inp);
+}
+
+latloncoord to_latlon_from_IG(struct IG_coord IG_conv){
+	from math import atan2, atan, pow, sqrt, pi, degrees, exp, sin
+	double E = IG_conv.easting;
+	double N = IG_conv.northing;
+	double FE = 2743196.4;
+	double FN = 914398.8;
+	double e = 0.081472981;
+	double e_2 = 0.00676866;
+	double FE = 2743195.5;
+	double FN = 914398.5;
+	double a = 6377301.243;
+	double k = 0.99878641;
+	double latod = 0.00;
+	double longod = 0.00;
+	if (0 == IG_conv.zone_number){
+		printString = errors[6];
+		print_stuff_1st_row();
+		delay(2000);
+		resetFunc();
+	}
+	switch (IG_conv.zone_number){
+		// https://epsg.org/conversion_18231/India-zone-I-1975-metres.html
+		case 1:
+				latod = 32.50;
+				longod = 68;
+				break;
+
+		case 2:
+				latod = 26;
+				longod = 74; 
+				break;
+		
+		case 3:
+				latod = 26;
+				longod = 90;
+				break;
+		
+		case 4:
+				latod = 19;
+				longod = 80;
+				break;
+		case 5:
+				latod = 12;
+				longod = 80;
+				break;
+		}
+
+	double lato = deg_to_rad(latod);
+	double longo = deg_to_rad(longod);
+	double n = sin(lato);
+	double F = mo/(n*pow(to, n));
+	double ro = a*F*pow(to, n)*k;
+	double r_dash = sqrt(pow(E - FE, 2) + pow(ro - (N - FN), 2));
+	// assigning the sign of r_dash based on the sign of n
+	if (n >= 0){
+		if !(r_dash >= 0)
+			r_dash = (-1.0) * (r_dash);
+	}
+	else{
+		if (r_dash >= 0)
+			r_dash = (-1.0) * (r_dash);
+	}
+	// atan2 is a function 
+	// Arc tangent of two numbers, or four-quadrant inverse tangent. 
+	// ATAN2(y,x) returns the arc tangent of the two numbers x and y. 
+	// It is similar to calculating the arc tangent of y / x, except 
+	// that the signs of both arguments are used to determine the 
+	// quadrant of the result.
+	// The result is an angle expressed in radians.
+	if (n >= 0){
+		theta_dash = atan2((E - FE) , (ro - (N - FN)));
+	} 
+	else{
+		theta_dash = atan2(-(E - FE) , -(ro - (N - FN)));
+	}
+	double lon = rad_to_deg((theta_dash/n) + longo);
+	double t_dash = pow(r_dash/(a*k*F) , 1/n);
+	// write based on n sign assign theta
+	double lat = ((pi/2) - (2 * atan(t_dash)));
+	double inter = 0;
+	// iterating through the for loop again and again 
+	// for 10 times
+	for(int i = 0; i < 10; i++){
+		inter = ((1 - (e * sin(lat)))/(1 + (e* sin(lat))));
+		lat = (pi/2) - (2*atan(t_dash* pow(inter,(e/2))));
+	}
+	lat = rad_to_deg(lat);
+	struct latloncoord latlonconv;
+	latlonconv.latitude = lat;
+	latlonconv.longitude = lon;
+	return (latlonconv);
+}
+		  		    
