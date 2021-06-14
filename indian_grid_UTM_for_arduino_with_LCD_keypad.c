@@ -85,6 +85,7 @@ struct IG_coord{
 		int zone_number;
 		double easting;
 		double northing;
+		String zone_char;
 }
 
 struct UTM_coord{
@@ -697,25 +698,30 @@ IG_coord from_latlon_to_IG (double latitude, double longitude){
 		case 1:
 				latod = 32.50;
 				longod = 68;
+				IG_conv.zone_char = "1A";
 				break;
 
 		case 2:
 				latod = 26;
 				longod = 74; 
+				IG_conv.zone_char = "2A";
 				break;
 		
 		case 3:
 				latod = 26;
 				longod = 90;
+				IG_conv.zone_char = "2B";
 				break;
 		
 		case 4:
 				latod = 19;
 				longod = 80;
+				IG_conv.zone_char = "3A";
 				break;
 		case 5:
 				latod = 12;
 				longod = 80;
+				IG_conv.zone_char = "4A";
 				break;
 		}
 
@@ -746,10 +752,11 @@ IG_coord from_latlon_to_IG (double latitude, double longitude){
 	return (IG_conv);
 }
 
+
 void print_IG(struct IG_coord IG_print){
 	printString = "zone num";
 	print_stuff_1st_row();
-	printString = IG_print.zone_number;
+	printString = IG_print.zone_char;
 	print_stuff_2nd_row(1);
 	timer_and_check_D_is_pressed();
 	printString = "easting";
@@ -770,7 +777,27 @@ IG_coord take_IG(){
 	struct IG_coord IG_inp;
 	int temp = 0;
 	printString = "Enter zone num";
-	temp = print_and_take();
+	IG_inp.zone_char = print_and_take_zone_num_IG()
+	switch (IG_inp.zone_char)){
+		case ("1A"):
+			temp = 1;
+			break;
+		case ("2A"):
+			temp = 2;
+			break;
+		case ("2B"):
+			temp = 3;
+			break;
+		case ("3A"):
+			temp = 4;
+			break;
+		case ("4A"):
+			temp = 5;
+			break;
+		default:
+			temp = 0;
+			break;
+	}
 	IG_inp.zone_number = temp;
 	printString = "Enter easting"; 
 	IG_inp.easting = print_and_take();
@@ -871,4 +898,46 @@ latloncoord to_latlon_from_IG(struct IG_coord IG_conv){
 	latlonconv.longitude = lon;
 	return (latlonconv);
 }
-		  		    
+
+String print_and_take_zone_num_IG(){
+	String resString;
+	print_stuff_1st_row();
+	cursor_pos_2nd_row = 0;
+	while (1){
+		keypressed = myKeypad.getKey();
+		if (keypressed != NO_KEY) {
+			printString = keypressed;
+			if ((keypressed >= '0' && keypressed <= '9') || (keypressed == '.')){     
+				// only act on numeric keys and decimal point
+				print_stuff_2nd_row();
+				inputString += keypressed; // append new character to input string
+				keypressed = NO_KEY;
+			}
+			else if ((keypressed == 'A') || (keypressed == 'B')){
+				print_stuff_2nd_row();
+				inputString += keypressed; // append new character to input string
+				keypressed = NO_KEY;
+			} 
+			else if (keypressed == 'D') {
+				if (inputString.length() > 0) {
+					resString = inputString;
+					inputString = "";// clear input
+					keypressed = NO_KEY;
+					printString = inputString;
+					print_stuff_2nd_row();
+					return (resString);
+				}
+			}
+		 else if (keypressed == 'C') {
+			clear_2nd_row();
+			inputString = inputString.substring(0, inputString.length() - 1);
+			printString = inputString;
+			print_stuff_2nd_row(1);
+		 }
+		 else if (keypressed == '#'){
+			resetFunc();  //call reset 
+		 } 
+		}
+	} 
+}
+
