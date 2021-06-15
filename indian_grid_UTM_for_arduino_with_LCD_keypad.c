@@ -246,9 +246,9 @@ double print_and_take(){
 latloncoord take_latlong(){
 	struct latloncoord latloninp;
 	printString = "Enter lat";
-	latloninp.latitude = print_and_take();
+	latloninp.latitude = print_and_take_latlong();
 	printString = "Enter long";
-	latloninp.longitude = print_and_take();
+	latloninp.longitude = print_and_take_latlong();
 	return (latloninp);
 }
 
@@ -611,7 +611,7 @@ latloncoord to_latlon(struct UTM_coord UTM_conv){
 }
 
 
-int in_zone(latitude, longitude, lat1, lat2, long1, long2){
+int in_zone(double latitude, double longitude, double lat1, double lat2, double long1, double long2){
 		int lat_cond = (latitude >= lat1) && (latitude <= lat2);
 		int long_cond = (longitude >= long1) && (longitude <= long2);
 		if ((lat_cond) && (long_cond)){
@@ -623,24 +623,24 @@ int in_zone(latitude, longitude, lat1, lat2, long1, long2){
 }
 
 
-int find_zone(latitude, longitude){
+int find_zone(double latitude, double longitude){
 		if (in_zone(latitude, longitude, 28, 35.51, 70.34, 81.64)){
-				return (1)
+				return (1);
 		}
 		else if (in_zone(latitude, longitude, 21, 28.01, 61.59, 82.01)){
-				return (2)
+				return (2);
 		}
 		else if (in_zone(latitude, longitude, 21, 29.47, 82, 101.17)){
-				return (3)
+				return (3);
 		} 
 		else if (in_zone(latitude, longitude, 15, 21.01, 70.14, 87.15)){
-				return (4)
+				return (4);
 		} 
 		else if (in_zone(latitude, longitude, 8.02, 15.01, 73.94, 80.41)){
-				return (5)
+				return (5);
 		}
 		else{
-				return (0)
+				return (0);
 		}
 }
 
@@ -941,3 +941,68 @@ String print_and_take_zone_num_IG(){
 	} 
 }
 
+double round_double(double var)
+{
+	// the 10000 is for 5 digits round off
+    // 37.66666 * 100 =3766.66
+    // 3766.66 + .5 =3767.16    for rounding off value
+    // then type cast to int so value is 3767
+    // then divided by 100 so the value converted into 37.67
+    double value = (int)(var * 100000 + .5);
+    return (double)value / 100000;
+}
+
+double DegMinSecToDegree(double x)
+{
+  	int deg=x;
+	double deg_double = deg;
+  	double minutes=(x-deg)*100;
+  	int amin=minutes;
+  	double asx=amin;
+	asx = asx / 60;
+  	double seconds=(minutes-asx)*100;
+	seconds = seconds / 3600;
+	deg_double = round_double(deg_double);
+	asx = round_double(asx);
+	seconds = round_double(seconds);
+  	double Degree = deg_double + (asx) +(seconds);
+  	return(Degree);
+}
+
+
+double print_and_take_latlong(){
+	print_stuff_1st_row();
+	cursor_pos_2nd_row = 0;
+	while (1){
+		keypressed = myKeypad.getKey();
+		if (keypressed != NO_KEY) {
+			printString = keypressed;
+			if ((keypressed >= '0' && keypressed <= '9') || (keypressed == '.')){     
+				// only act on numeric keys and decimal point
+				print_stuff_2nd_row();
+				inputString += keypressed; // append new character to input string
+				keypressed = NO_KEY;
+			} 
+			else if (keypressed == 'D') {
+				if (inputString.length() > 0) {
+					inputDouble = inputString.toDouble();// YOU GOT AN INTEGER NUMBER
+					inputDouble = DegMinSecToDegree(inputDouble);
+					inputString = "";// clear input
+					keypressed = NO_KEY;
+					printString = inputDouble;
+					print_stuff_2nd_row();
+					return (inputDouble);
+				}
+			}
+		 else if (keypressed == 'C') {
+			clear_2nd_row();
+			inputString = inputString.substring(0, inputString.length() - 1);
+			printString = inputString;
+			print_stuff_2nd_row(1);
+		 }
+		 else if (keypressed == '#'){
+			resetFunc();  //call reset 
+		 } 
+		}
+	} 
+}
